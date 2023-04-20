@@ -183,17 +183,19 @@ Node* head;
 int students_count = 0;
 
 void save_to_db() {
-    ofstream db_out("database", ios_base::out);
+    ofstream db_out("database.txt", ios_base::out);
     Node* curr = head;
-    db_out << students_count << ' ';
+    db_out << students_count << endl;
     while (curr) {
-        db_out << curr->st.surname << ' ' << curr->st.name << ' ' << curr->st.patronymic << ' ' << curr->st.num_of_record_book << ' ' << curr->st.year_of_application << ' ' << curr->st.faculty;
-        db_out << ' ' << curr->st.department << ' ' << curr->st.group << ' ' << curr->st.date_of_birth.day << ' ' << curr->st.date_of_birth.month << ' ' << curr->st.date_of_birth.year;
-        db_out << ' ' << curr->st.session_cnt << ' ' << curr->st.subject_cnt << endl;
+        db_out << curr->st.surname << endl << curr->st.name << endl << curr->st.patronymic << endl;
+        db_out << curr->st.date_of_birth.day << endl << curr->st.date_of_birth.month << endl << curr->st.date_of_birth.year << endl;
+        db_out << curr->st.num_of_record_book << endl << curr->st.year_of_application << endl << curr->st.faculty << endl;
+        db_out << curr->st.department << endl << curr->st.group << endl;
+        db_out << curr->st.session_cnt << endl << curr->st.subject_cnt << endl;
         for (int i = 0; i < curr->st.session_cnt; i++) {
             for (int j = 0; j < curr->st.session[i].subject_cnt; j++) {
-                db_out << curr->st.session[i].subject[j]._name << ' ' << curr->st.session[i].subject[j].exam_type;
-                db_out << ' ' << curr->st.session[i].subject[j].ex_mark << ' ' << curr->st.session[i].subject[j].mark << endl;
+                db_out << curr->st.session[i].subject[j]._name << endl << curr->st.session[i].subject[j].exam_type;
+                db_out << endl << curr->st.session[i].subject[j].ex_mark << endl << curr->st.session[i].subject[j].mark << endl;
             }
         }
         curr = curr->next;
@@ -202,25 +204,37 @@ void save_to_db() {
 }
 
 void read_db() {
-    ifstream db_in("database", ios_base::in);
-    db_in.open("database", ios_base::in);
+    ifstream db_in("database.txt", ios_base::in);
+    int st_count = 0;
     db_in >> students_count;
-    Node* curr = head;
     for (int i = 0; i < students_count; i++) {
-        db_in >> students_count;
-        db_in >> curr->st.surname >> curr->st.name >> curr->st.patronymic >> curr->st.num_of_record_book >> curr->st.year_of_application >> curr->st.faculty;
-        db_in >> curr->st.department >> curr->st.group >> curr->st.date_of_birth.day >> curr->st.date_of_birth.month >> curr->st.date_of_birth.year;
-        db_in >> curr->st.session_cnt >> curr->st.subject_cnt;
-        for (int i = 0; i < curr->st.session_cnt; i++) {
-            for (int j = 0; j < curr->st.session[i].subject_cnt; j++) {
-                 db_in >> curr->st.session[i].subject[j]._name >> curr->st.session[i].subject[j].exam_type;
-                 db_in >> curr->st.session[i].subject[j].ex_mark >> curr->st.session[i].subject[j].mark;
-                }
+        Student term;
+        db_in >> term.surname >> term.name >> term.patronymic >> term.date_of_birth.day >> term.date_of_birth.month >> term.date_of_birth.year >> term.num_of_record_book >> term.year_of_application;
+        db_in.ignore();
+        getline(db_in, term.faculty, '\n');
+        getline(db_in, term.department, '\n');
+        db_in >> term.group;
+        db_in >> term.session_cnt >> term.subject_cnt;
+        for (int i = 0; i < term.session_cnt; i++) {
+            for (int j = 0; j < term.session[i].subject_cnt; j++) {
+                db_in >> term.session[i].subject[j]._name >> term.session[i].subject[j].exam_type;
+                db_in >> term.session[i].subject[j].ex_mark >> term.session[i].subject[j].mark;
             }
-         curr = curr->next;
         }
-    db_in.close();
+        Node* newItem = new Node();
+        newItem->st = term;
+        if (students_count == 0) {
+            newItem->next = NULL;
+        }
+        else {
+            newItem->next = head;
+        }
+        head = newItem;
+        st_count++;
     }
+    db_in.close();
+    students_count = st_count;
+}
 
 
 Node* get_at(int k) {
@@ -283,15 +297,34 @@ void print_list() {
     }
 }
 
+void control(){
+    int fl = 1;
+    while (fl) {
+        string a;
+        cin >> a;
+        system("cls");
+        if (a == "add") {
+            add_student_to_list();
+        }
+        if (a == "print") {
+            print_list();
+        }
+        if (a == "find") {
+            int f;
+            cin >> f;
+            get_at(f);
+        }
+        if (a == "close") {
+            fl = 0;
+        }
+    }
+}
 
 int main()
 {
     SetConsoleCP(1251); SetConsoleOutputCP(1251);
     read_db();
-    add_student_to_list();
-    add_student_to_list();
-    print_list();
-    cout << endl;
+    control();
     save_to_db();
 }
 
