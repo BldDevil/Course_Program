@@ -77,10 +77,10 @@ public:
 
 class Session: public Subject {
 public:
-    Subject subject[9];
+    Subject subject[10];
     int redline = 0;
     void add_subject() {
-        if (redline < 9) {
+        if (redline < 10) {
             subject[redline].set_all();
             redline++;
         }
@@ -88,18 +88,9 @@ public:
             cout << "Превышено максимальное количество дисциплин в сессии" << endl;
         }
     }
-    void edit_name(int number) {
-        subject[number].set_name();
-    }
-    void edit_type(int number) {
-        subject[number].set_type();
-    }
-    void edit_mark(int number) {
-        subject[number].set_evaluation();
-    }
     void get_list_subjects() {
             cout << "Список дисциплин: " << endl;
-            for (int i = 1; i < 10; i++) {
+            for (int i = 1; i < 11; i++) {
                 cout << i << '.' << ' ';
                 subject[i - 1].get_info();
                 cout << endl;
@@ -158,7 +149,6 @@ public:
     }
     void set_date_of_birth() {
         cout << "Введите дату рождения студента в формате дд.мм.гггг: ";
-       // cin >> date_of_birth.day >> date_of_birth.month >> date_of_birth.year;
         scanf_s("%d.%d.%d", &date_of_birth.day, &date_of_birth.month, &date_of_birth.year);
     }
     void set_gender() {
@@ -175,12 +165,10 @@ public:
     }
     void set_faculty() {
         cout << "Введите институт, в котором обучается студент: ";
-        cin.ignore();
         getline(cin, faculty, '\n');
     }
     void set_department() {
         cout << "Введите кафедру института: ";
-        cin.ignore();
         getline(cin, department, '\n');
     }
     void set_group() {
@@ -199,7 +187,7 @@ public:
     }
     void get_session() {
         system("cls");
-        for (int i = 1; i < 9; i++) {
+        for (int i = 1; i < 10; i++) {
             cout << "Сессия " << " " << i << endl;
         }
     }
@@ -208,17 +196,16 @@ public:
         int sess;
         cout << "Выберите сессию: ";
         cin >> sess;
-        if ((sess < 0) or (sess > 8)) {
+        if ((sess-1 < 0) or (sess-1 > 8)) {
             cout << "Неверный номер сессии";
             session_panel();
         }
         else {
             system("cls");
-            ch_sess = sess - 1;
-            session[ch_sess].get_list_subjects();
+            session[sess-1].get_list_subjects();
         }
     }
-    Session session[8];
+    Session session[9];
     string surname, name, patronymic;
     char gender;
     string faculty, department, group, num_of_record_book;
@@ -241,7 +228,7 @@ public:
 
 
     void save_to_db() {
-        ofstream db_out("database", ios_base::out | ios_base::binary);
+        ofstream db_out("database", ios::binary | ios::out);
         Node* curr = head;
         db_out << students_count << endl;
         while (curr) {
@@ -249,8 +236,8 @@ public:
             db_out << curr->st.date_of_birth.day << endl << curr->st.date_of_birth.month << endl << curr->st.date_of_birth.year << endl;
             db_out << curr->st.gender << endl << curr->st.num_of_record_book << endl << curr->st.year_of_application << endl << curr->st.faculty << endl;
             db_out << curr->st.department << endl << curr->st.group << endl;;
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 9; j++) {
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 10; j++) {
                     db_out << curr->st.session[i].subject[j]._name << endl << curr->st.session[i].subject[j].exam_type;
                     db_out << endl << curr->st.session[i].subject[j].ex_mark << endl << curr->st.session[i].subject[j].mark << endl;
                 }
@@ -261,7 +248,7 @@ public:
     }
 
     void read_db() {
-        ifstream db_in("database", ios_base::in | ios_base::binary);
+        ifstream db_in("database", ios::binary | ios::in);
         int st_count = 0;
         db_in >> students_count;
         for (int i = 0; i < students_count; i++) {
@@ -271,8 +258,8 @@ public:
             getline(db_in, term.faculty, '\n');
             getline(db_in, term.department, '\n');
             getline(db_in, term.group, '\n');
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 9; j++) {
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 10; j++) {
                     getline(db_in, term.session[i].subject[j]._name, '\n');
                     getline(db_in, term.session[i].subject[j].exam_type, '\n');
                     db_in >> term.session[i].subject[j].ex_mark; db_in.ignore();
@@ -311,7 +298,7 @@ public:
         cin.ignore();
     }
 
-    int findIndex(Node* st) {
+    int find_student(Node* st) {
         Node* current = new Node();
         current = head;
         for (int i = 0; i < students_count; i++) {
@@ -349,21 +336,6 @@ public:
             }
         }
     }
-
-    void delete_list(ClassList list) {
-        Node* current = list.head;
-        struct Node* old;
-        while (current) {
-            old = current->next->next;
-            delete current->next;
-            current->next = old;
-            break;
-            current = current->next;
-        }
-        delete list.chosen;
-        delete list.head;
-    }
- 
 
     void print_list() {
         Node* current = head;
@@ -416,7 +388,7 @@ public:
     void subjects_panel(int ch_sess) {
         cout << "Выберите дисциплину согласно номеру в списке: ";
         cin >> ch_sub;
-        if (ch_sub < 1 or ch_sub > 9) {
+        if (ch_sub < 1 or ch_sub > 10) {
             cout << "Данной дисциплины нет в списке" << endl;
             subjects_panel(ch_sess);
         }
@@ -502,7 +474,7 @@ public:
             if (current->st.num_of_record_book == target) {
                 fnd = 1;
                 list.chosen = current;
-                list.findIndex(list.chosen);
+                list.find_student(list.chosen);
                 control_student(list.chosen);
             };
         }
@@ -549,7 +521,7 @@ public:
                 if (dat == "Год поступления") {
                     current->st.set_year_of_application();
                 }
-                if (dat == "Номер зачетной книжки") {
+                if (dat == "Номер зачётной книжки") {
                     current->st.set_rec_book();
                 }
                 if (dat == "Институт") {
@@ -576,7 +548,7 @@ public:
                 string choice;
                 cin >> choice;
                 if (choice == "Да") {
-                    list.delete_student(list.findIndex(list.chosen));
+                    list.delete_student(list.find_student(list.chosen));
                     cout << "Данные о студенте успешно удалены.";
                     Sleep(2000);
                     system("cls");
@@ -606,77 +578,78 @@ public:
             solve_task();
         }
         else {
-        a:     int start, end;
-            cout << "Введите интервал, в пределах которого будут отсортированы студенты (год рождения)" << endl;
-            cout << "Начало: ";
-            cin >> start;
-            if (start < 1900 or start > 2100) {
-                cout << "Некорректная дата рождения";
-                goto a;
+            int start = NULL;
+            int end = NULL;
+            while (start < 1970 or start > 2030) {
+                cout << "Введите интервал, в пределах которого будут отсортированы студенты (год рождения)" << endl;
+                cout << "Начало: ";
+                cin >> start;
+                if (start < 1970 or start > 2030) {
+                    cout << "Некорректная дата рождения" << endl;
+                }
             }
-      b:    cout << endl << "Конец: ";
-            cin >> end;
-            if (end < 1900 or end > 2100) {
-                cout << "Некорректная дата рождения";
-                goto b;
+            while ((end > 2030) or (start > end)) {
+                cout << endl << "Конец: ";
+                cin >> end;
+                if (end > 2030 or start > end) {
+                    cout << "Некорректная дата рождения" << endl;
+                }
             }
-            else {
-                Node* five_st = new Node[students_count];
-                int five_head = 0;
+            Node* five_st = new Node[students_count];
+            int five_head = 0;
 
-                Node* four_st = new Node[students_count];
-                int four_head = 0;
+            Node* four_st = new Node[students_count];
+            int four_head = 0;
 
-                Node* three_st = new Node[students_count];
-                int three_head = 0;
+            Node* three_st = new Node[students_count];
+            int three_head = 0;
 
-                Node* curr = list.head;
-                for (curr; curr != NULL; curr = curr->next) {
-                    if ((curr->st.date_of_birth.year >= start) and (curr->st.date_of_birth.year <= end)) {
-                        int five = 0; int four = 0; int three = 0;
-                        for (int i = 0; i < 9; i++) {
-                            if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 5) {
-                                five++;
-                            }
-                            if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 4) {
-                                four++;
-                            }
-                            if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 3) {
-                                three++;
-                            }
+            Node* curr = list.head;
+            for (curr; curr != NULL; curr = curr->next) {
+                if ((curr->st.date_of_birth.year >= start) and (curr->st.date_of_birth.year <= end)) {
+                    int five = 0; int four = 0; int three = 0;
+                    for (int i = 0; i < 9; i++) {
+                        if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 5) {
+                            five++;
                         }
-                        if ((four == 0) and (three == 0) and (five > 0)) {
-                            five_st[five_head] = *curr;
-                            five_head++;
+                        if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 4) {
+                            four++;
                         }
-                        if ((five > 0) and (four > 0) and (three == 0)) {
-                            four_st[four_head] = *curr;
-                            four_head++;
-                        }
-                        if ((five == 0) and (four == 0) and (three > 0)) {
-                            three_st[three_head] = *curr;
-                            three_head++;
+                        if (curr->st.session[sess_choice - 1].subject[i].ex_mark == 3) {
+                            three++;
                         }
                     }
+                    if ((four == 0) and (three == 0) and (five > 0)) {
+                        five_st[five_head] = *curr;
+                        five_head++;
+                    }
+                    if ((five > 0) and (four > 0) and (three == 0)) {
+                        four_st[four_head] = *curr;
+                        four_head++;
+                    }
+                    if ((five == 0) and (four == 0) and (three > 0)) {
+                        three_st[three_head] = *curr;
+                        three_head++;
+                    }
                 }
-                cout << "Отличники: " << endl;
-                for (int i = 0; i <= five_head; i++) {
-                    cout << five_st[i].st.surname << ' ' << five_st[i].st.name << ' ' << five_st[i].st.patronymic << endl;
-                }
-                cout << endl << "Хорошисты: " << endl;
-                for (int i = 0; i <= four_head; i++) {
-                    cout << four_st[i].st.surname << ' ' << four_st[i].st.name << ' ' << four_st[i].st.patronymic << endl;
-
-                }
-                cout << endl << "Троечники: " << endl;
-                for (int i = 0; i <= three_head; i++) {
-                    cout << three_st[i].st.surname << ' ' << three_st[i].st.name << ' ' << three_st[i].st.patronymic << endl;
-                }
-                delete[] five_st;
-                delete[] four_st;
-                delete[] three_st;
-                delete[] curr;
             }
+            cout << "Отличники: " << endl;
+            for (int i = 0; i <= five_head; i++) {
+                cout << five_st[i].st.surname << ' ' << five_st[i].st.name << ' ' << five_st[i].st.patronymic << endl;
+            }
+            cout << endl << "Хорошисты: " << endl;
+            for (int i = 0; i <= four_head; i++) {
+                cout << four_st[i].st.surname << ' ' << four_st[i].st.name << ' ' << four_st[i].st.patronymic << endl;
+
+            }
+            cout << endl << "Троечники: " << endl;
+            for (int i = 0; i <= three_head; i++) {
+                cout << three_st[i].st.surname << ' ' << three_st[i].st.name << ' ' << three_st[i].st.patronymic << endl;
+            }
+            delete[] five_st;
+            delete[] four_st;
+            delete[] three_st;
+            delete[] curr;
         }
     }
 
@@ -704,7 +677,6 @@ public:
             }
             if (a == "0") {
                 list.save_to_db();
-                list.delete_list(list);
                 exit(0);
             }
         }
@@ -719,13 +691,3 @@ int main()
     menu.control_main();
 }
 
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
